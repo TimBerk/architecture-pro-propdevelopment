@@ -1,0 +1,8 @@
+# VSCODE IDE
+.vscode
+
+#Pycharm IDE
+.idea
+
+# keys for kube users
+keys/
