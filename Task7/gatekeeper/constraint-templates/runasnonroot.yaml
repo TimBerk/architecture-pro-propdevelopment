@@ -1,0 +1,30 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsprunasnonroot
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPRunAsNonRoot
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsprunasnonroot
+
+        containers[c] {
+          input.review.kind.kind == "Pod"
+          c := input.review.object.spec.containers[_]
+        }
+
+        violation[{"msg": msg}] {
+          c := containers[_]
+          not c.securityContext.runAsNonRoot
+          msg := sprintf("container %v must set runAsNonRoot=true", [c.name])
+        }
+
+        violation[{"msg": msg}] {
+          c := containers[_]
+          not c.securityContext.readOnlyRootFilesystem
+          msg := sprintf("container %v must set readOnlyRootFilesystem=true", [c.name])
+        }
